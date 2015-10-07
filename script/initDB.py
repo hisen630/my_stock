@@ -45,10 +45,10 @@ if '__main__' == __name__:
             choices=["db_stock", "tbl_dailyStock", "tbl_stockBasic", "all"],
             help='''
 Create the database or table.
-all : create all the needed database and tables\n
-db_stock : create the database\n
-tbl_dailyStock : create the table of name "dailyStock", which records the daily stock info.\n
-tbl_stockBasic : craete the table of name "stockBasic", which records the stock basic info.\n
+all : create all the needed database and tables.
+db_stock : create the database.
+tbl_dailyStock : create the table of name "dailyStock", which records the daily stock info.
+tbl_stockBasic : craete the table of name "stockBasic", which records the stock basic info.
             ''')
     parser.add_argument("-f", "--force", action="store_true",
             help="if this option is set, will do init even if the db/table exists, which leads to data deleted.")
