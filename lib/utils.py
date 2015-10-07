@@ -9,7 +9,16 @@ import mylog
 import MySQLdb
 
 def getConn():
-    conn = MySQLdb.connect(**conf.mysqlConfig)
+    conf.mysqlConfig["db"] = conf.DB_NAME
+    try:
+        conn = MySQLdb.connect(**conf.mysqlConfig)
+    except Exception,e:
+        # init the db
+        if e.args[0] == 1049:
+            conf.mysqlConfig.pop("db")
+            conn = MySQLdb.connect(**conf.mysqlConfig)
+        else:
+            raise e
     return conn
 
 def executeSQL(sql):

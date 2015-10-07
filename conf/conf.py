@@ -7,14 +7,14 @@ import os
 # how to save downloaded data
 saveMode = "mysql"
 
-############## mysql configuration ###############
-mysqlConfig = {
-        "host":"127.0.0.1", "port":3306, "user":"hisen", "passwd":"123456", "db":"stock"
-        }
-
 DB_NAME = "stock"
 DAILY_STOCK_TABLE = "dailyStock"
 STOCK_BASIC_TABLE = "stockBasic"
+
+############## mysql configuration ###############
+mysqlConfig = {
+        "host":"127.0.0.1", "port":3306, "user":"hisen", "passwd":"123456"        }
+
 
 ############## system configuration ################
 CWD = os.getcwd()

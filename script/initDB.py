@@ -42,12 +42,13 @@ if '__main__' == __name__:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--create", type=str, 
-            choices=["db_stock", "tbl_dailyStock", "tbl_stockBasic"],
+            choices=["db_stock", "tbl_dailyStock", "tbl_stockBasic", "all"],
             help='''
 Create the database or table.
-db_stock : create the database
-tbl_dailyStock : create the table of name "dailyStock", which records the daily stock info.
-tbl_stockBasic : craete the table of name "stockBasic", which records the stock basic info.
+all : create all the needed database and tables\n
+db_stock : create the database\n
+tbl_dailyStock : create the table of name "dailyStock", which records the daily stock info.\n
+tbl_stockBasic : craete the table of name "stockBasic", which records the stock basic info.\n
             ''')
     parser.add_argument("-f", "--force", action="store_true",
             help="if this option is set, will do init even if the db/table exists, which leads to data deleted.")
@@ -55,8 +56,8 @@ tbl_stockBasic : craete the table of name "stockBasic", which records the stock 
     args = parser.parse_args()
 
     if args.create:
-        if args.create.lower() == "db_stock":
+        if args.create.lower() in ("db_stock", "all"):
             _createDB()
-        elif args.create.lower() == "tbl_dailystock":
+        if args.create.lower() in ("tbl_dailystock", "all"):
             _createTbl("dailyStock")
 
