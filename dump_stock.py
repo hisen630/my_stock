@@ -109,7 +109,13 @@ if '__main__' == __name__:
     parser.add_argument("-e", "--end", type=str, help='''
     Till which date(YYYY-MM-DD) to download. If not set, will using current date.
     ''')
+    parser.add_argument("-r", "--resume", type=int, help='''
+    Which task to resume. You must specify an id from the task table, and the task's status should not be "succeed"
+    ''')
     args = parser.parse_args()
+
+    if args.resume is not None:
+
 
     stockBasics = ts.get_stock_basics()
     stockList = []

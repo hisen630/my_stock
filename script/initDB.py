@@ -35,14 +35,14 @@ tableSqlDict = {
         "downloadTaskStatus":'''
             create table `t_download_task_status` (
                `id` int(16) NOT NULL AUTO_INCREMENT,
-               `first_run_time` date NOT NULL COMMENT 'first run time.',
-               `last_run_time` date NOT NULL COMMENT 'last run time.',
+               `first_run_time` datetime NOT NULL COMMENT 'first run time.',
+               `last_run_time` datetime NOT NULL COMMENT 'last run time.',
                `run_times` int(8) NOT NULL COMMENT 'how many time does this task ran.',
                `options` varchar(1024) NOT NULL COMMENT 'the task cmd options.',
                `last_success_code` varchar(16) NOT NULL COMMENT 'last success stock code.',
                `last_success_start` date NOT NULL COMMENT 'start date.',
                `last_success_end` date NOT NULL COMMENT 'end date.',
-               `update_time` date NOT NULL COMMENT 'last touch this record.',
+               `update_time` datetime NOT NULL COMMENT 'last touch this record.',
                `status` varchar(16) NOT NULL COMMENT 'indicate this task status.',
                PRIMARY KEY(`id`)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8;
