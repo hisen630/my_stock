@@ -49,7 +49,7 @@ all : create all the needed database and tables.
 db_stock : create the database.
 tbl_dailyStock : create the table of name "dailyStock", which records the daily stock info.
 tbl_stockBasic : craete the table of name "stockBasic", which records the stock basic info.
-            ''')
+            ''', required=True)
     parser.add_argument("-f", "--force", action="store_true",
             help="if this option is set, will do init even if the db/table exists, which leads to data deleted.")
 
