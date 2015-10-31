@@ -29,7 +29,7 @@ class StockDownload(object):
         self.fields = fields
 
         self.downloadRanges = self.__splitDateRange()
-        logging.debug("Download _ranges of %s :%s"%(self.code,self.downloadRanges))
+        #logging.debug("Download _ranges of %s :%s"%(self.code,self.downloadRanges))
 
     def __splitDateRange(self):
         """The (self.startDate, self.endDate) may span over a very large range,
