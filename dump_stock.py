@@ -134,8 +134,6 @@ if '__main__' == __name__:
         else:
             codeList = [args.code,]
             logging.info("CodeList: %s"%codeList)
-    import sys
-    sys.exit(0)
 
     for code in codeList:
         dateStr = args.start
