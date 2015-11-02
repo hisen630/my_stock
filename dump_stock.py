@@ -29,7 +29,7 @@ class StockDownload(object):
         self.fields = fields
 
         self.downloadRanges = self.__splitDateRange()
-        logging.debug("Download _ranges of %s :%s"%(self.code,self.downloadRanges))
+        #logging.debug("Download _ranges of %s :%s"%(self.code,self.downloadRanges))
 
     def __splitDateRange(self):
         """The (self.startDate, self.endDate) may span over a very large range,
@@ -103,6 +103,10 @@ if '__main__' == __name__:
     parser.add_argument("-c", "--code", type=str, help='''
     The stock code, set to "all" if all the stock data needed. You can set a list of code by separated by comma.
     ''', required=True)
+    parser.add_argument("-g", "--greater", action="store_true", help='''
+    if this option is set, all the codes greater than the code will be
+        downloaded.
+    ''')
     parser.add_argument("-s", "--start", type=str, help='''
     From which date(YYYY-MM-DD) to download. If not set, will using stock's timeToMarket.
     ''')
@@ -124,10 +128,18 @@ if '__main__' == __name__:
     if args.code.find(",")!=-1:
         # a list of codes
         codeList = args.code.split(",")
+        logging.info("CodeList: Specified with size %d : %s."%(len(codeList), codeList))
     elif args.code.lower() == "all":
         codeList = list(stockBasics.index)
+        logging.info("CodeList:ALL with size %d"%len(codeList))
     else:
-        codeList = [args.code,]
+        if args.greater:
+            codeList = filter(lambda x:x>=args.code,list(stockBasics.index))
+            logging.info("CodeList: Since %s with size %d."%(args.code,
+                len(codeList)))
+        else:
+            codeList = [args.code,]
+            logging.info("CodeList: %s"%codeList)
 
     for code in codeList:
         dateStr = args.start
