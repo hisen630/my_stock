@@ -69,7 +69,8 @@ class StockDownloader(object):
                 descStr = " (%s, %s, %s) "%(stock.code, start, end)
                 logging.info("Downloading %s."%descStr)
 
-                df = ts.get_h_data(stock.code, start=start, end=end, pause=3)
+                df = ts.get_h_data(stock.code, start=start, end=end,
+                retry_count=5,pause=0.01)
 
                 if df is None:
                     logging.info("No data for %s."%descStr)
