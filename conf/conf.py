@@ -13,7 +13,7 @@ STOCK_BASIC_TABLE = "stockBasic"
 
 ############## mysql configuration ###############
 mysqlConfig = {
-        "host":"127.0.0.1", "port":3306, "user":"root", "passwd":"123456"        }
+        "host":"192.168.222.128", "port":3306, "user":"root", "passwd":"123456"        }
 
 
 ############## system configuration ################
