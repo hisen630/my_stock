@@ -20,18 +20,61 @@ def _createDB():
     logging.info("Created database %s."%conf.DB_NAME)
 
 tableSqlDict = {
-        "dailyStock":'''
-            create table `t_daily_stock` (
+        "fqFactor":'''
+            create table `t_daily_fqFactor` (
+                `stock_code` varchar(16) NOT NULL COMMENT 'stock code',
+                `date` date NOT NULL COMMENT 'date',
+                `factor` float(32) NOT NULL COMMENT 'for calculating fq price',
+                UNIQUE KEY `idx_code_date` (`stock_code`, `date`)
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        ''',
+        "dailyHfqStock":'''
+            create table `t_daily_hfq_stock` (
                `stock_code` varchar(16) NOT NULL COMMENT 'stock code',
                `deal_date` date NOT NULL COMMENT 'date',
-               `open_price` float(10,2) NOT NULL COMMENT 'open price',
-               `high_price` float(10,2) NOT NULL COMMENT 'highest price of the day',
-               `close_price` float(10,2) NOT NULL COMMENT 'close price',
-               `low_price` float(10,2) NOT NULL COMMENT 'lowest price of the day',
+               `open_price` float(10,4) NOT NULL COMMENT 'open price, hfq',
+               `high_price` float(10,4) NOT NULL COMMENT 'highest price of the day, hfq',
+               `close_price` float(10,4) NOT NULL COMMENT 'close price, hfq',
+               `low_price` float(10,4) NOT NULL COMMENT 'lowest price of the day, hfq',
                `volume` bigint(20) NOT NULL COMMENT 'volume',
                `amount` bigint(20) NOT NULL COMMENT 'deal amount of money',
                UNIQUE KEY `idx_code_date` (`stock_code`, `deal_date`)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8;''',
+        "dailyQfqStock":'''
+            create table `t_daily_qfq_stock` (
+                `stock_code` varchar(16) NOT NULL COMMENT 'stock code',
+                `deal_date` date NOT NULL COMMENT 'date',
+                `open_price` float(10,4) NOT NULL COMMENT 'open price, qfq',
+                `high_price` float(10,4) NOT NULL COMMENT 'highest price of the day, qfq',
+                `close_price` float(10,4) NOT NULL COMMENT 'close price, qfq',
+                `low_price` float(10,4) NOT NULL COMMENT 'lowest price of the day, qfq',
+                `volume` bigint(20) NOT NULL COMMENT 'volume',
+                `amount` bigint(20) NOT NULL COMMENT 'deal amount of money',
+                UNIQUE KEY `idx_code_date` (`stock_code`, `deal_date`)
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        ''',
+        "stockBasic":'''
+            create table `t_stock_basics` (
+                `update_date` date NOT NULL COMMENT 'update date',
+                `stock_code` varchar(16) NOT NULL COMMENT 'stock code',
+                `name` varchar(32) NOT NULL COMMENT 'cn name',
+                `industry` varchar(32) NOT NULL COMMENT '',
+                `area` varchar(32) NOT NULL COMMENT '',
+                `pe` float(10,4) NOT NULL COMMENT '',
+                `outstanding` float(10, 4) NOT NULL COMMENT '',
+                `totals` float(10,4) NOT NULL COMMENT '',
+                `totalAssets` float(20,4) NOT NULL COMMENT '',
+                `liquidAssets` float(20,4) NOT NULL COMMENT '',
+                `fixedAssets` float(20,4) NOT NULL COMMENT '',
+                `reserved` float(20,4) NOT NULL COMMENT '',
+                `reservedPerShare` float(20,4) NOT NULL COMMENT '',
+                `esp` float(10,4) NOT NULL COMMENT '',
+                `bvps` float(10,4) NOT NULL COMMENT '',
+                `pb` float(10,4) NOT NULL COMMENT '',
+                `timeToMarket` int(10) NOT NULL COMMENT '',
+                UNIQUE KEY `idx_code_date` (`stock_code`, `update_date`)
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        ''',
         "downloadTaskStatus":'''
             create table `t_download_task_status` (
                `id` int(16) NOT NULL AUTO_INCREMENT,
@@ -57,12 +100,13 @@ if '__main__' == __name__:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--create", type=str, 
-            choices=["db_stock", "tbl_dailyStock", "tbl_stockBasic","tbl_downloadTaskStatus", "all"],
+            choices=["db_stock", "tbl_dailyHfqStock", "tbl_dailyQfqStock", "tbl_stockBasic","tbl_downloadTaskStatus", "all"],
             help='''
-Create the database or table.
+Create the database or table. Case insensitive.
 all : create all the needed database and tables.
 db_stock : create the database.
-tbl_dailyStock : create the table of name "dailyStock", which records the daily stock info.
+tbl_dailyHfqStock : create the table of name "dailyHfqStock", which records the daily stock info, with hqf prices.
+tbl_dailyQfqStock : create the table of name "dailyQfqStock", which records the daily stock info, with qfq prices.
 tbl_stockBasic : create the table of name "stockBasic", which records the stock basic info.
 tbl_downloadTaskStatus : create the table of name "downloadTaskStatus", which records the download task's status, to provide the breakpoint.
             ''', required=True)
@@ -74,8 +118,14 @@ tbl_downloadTaskStatus : create the table of name "downloadTaskStatus", which re
     if args.create:
         if args.create.lower() in ("db_stock", "all"):
             _createDB()
-        if args.create.lower() in ("tbl_dailystock", "all"):
-            _createTbl("dailyStock")
+        if args.create.lower() in ("tbl_dailyhfqstock", "all"):
+            _createTbl("dailyHfqStock")
+        if args.create.lower() in ("tbl_dailyqfqstock", "all"):
+            _createTbl("dailyQfqStock")
+        if args.create.lower() in ("tbl_fqFactor", "all"):
+            _createTbl("fqFactor")
         if args.create.lower() in ("tbl_downloadtaskstatus", "all"):
             _createTbl("downloadTaskStatus")
+        if args.create.lower() in ("tbl_stockBasic", "all"):
+            _createTbl("stockBasic")
 
