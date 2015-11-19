@@ -6,7 +6,7 @@ __pycache__/
 *.so
 
 # logs
-*.logs
+logs/
 
 # Distribution / packaging
 .Python
