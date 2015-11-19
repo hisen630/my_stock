@@ -3,6 +3,8 @@
 
 import os
 
+# for distingish running instances
+sandbox_key="mls_pc_virtual-hhy-001"
 
 # how to save downloaded data
 saveMode = "mysql"

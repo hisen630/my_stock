@@ -75,6 +75,17 @@ tableSqlDict = {
                 UNIQUE KEY `idx_code_date` (`stock_code`, `update_date`)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ''',
+        "sandboxStatus":'''
+            create table `t_sandbox_status` (
+                `key` varchar(128) NOT NULL COMMENT '',
+                `start_time` date NOT NULL COMMENT '',
+                `update_time` date NOT NULL COMMENT '',
+                `status` int NOT NULL DEFAULT 0 COMMENT '1:HIST_ING, 2:HIST_DONE, 3:DAILY_ING, 4:DAILY_DONE',
+                `current_code` varchar(16) COMMENT 'when status is 1 or 3, this field is useful',
+                `current_timerange` varchar(128) COMMENT 'where status is 1 or 3, this field is useful',
+                PRIMARY KEY(`key`)
+            )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+        ''',
         "downloadTaskStatus":'''
             create table `t_download_task_status` (
                `id` int(16) NOT NULL AUTO_INCREMENT,
@@ -100,7 +111,7 @@ if '__main__' == __name__:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--create", type=str, 
-            choices=["db_stock", "tbl_dailyHfqStock", "tbl_dailyQfqStock", "tbl_stockBasic","tbl_downloadTaskStatus", "all"],
+            choices=["db_stock", "tbl_dailyHfqStock", "tbl_dailyQfqStock", "tbl_stockBasic","tbl_downloadTaskStatus", "tbl_sandboxStatus", "all"],
             help='''
 Create the database or table. Case insensitive.
 all : create all the needed database and tables.
@@ -118,6 +129,8 @@ tbl_downloadTaskStatus : create the table of name "downloadTaskStatus", which re
     if args.create:
         if args.create.lower() in ("db_stock", "all"):
             _createDB()
+        if args.create.lower() in ("tbl_sandboxstatus", "all"):
+            _createTbl("sandboxStatus")
         if args.create.lower() in ("tbl_dailyhfqstock", "all"):
             _createTbl("dailyHfqStock")
         if args.create.lower() in ("tbl_dailyqfqstock", "all"):
