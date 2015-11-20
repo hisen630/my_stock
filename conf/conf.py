@@ -3,6 +3,11 @@
 
 import os
 
+import time
+
+ISO_TIME_FORMAT='%Y-%m-%d %X'
+ISO_DATE_FORMAT='%Y-%m-%d'
+
 # for distingish running instances
 sandbox_key="mls_pc_virtual-hhy-001"
 
@@ -15,7 +20,12 @@ STOCK_BASIC_TABLE = "stockBasic"
 
 ############## mysql configuration ###############
 mysqlConfig = {
-        "host":"192.168.222.128", "port":3306, "user":"root", "passwd":"123456"        }
+        "host":"192.168.222.128", 
+        "port":3306, 
+        "user":"root", 
+        "passwd":"123456",
+        "charset":"utf8"
+        }
 
 
 ############## system configuration ################

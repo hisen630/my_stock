@@ -22,15 +22,15 @@ def _createDB():
 tableSqlDict = {
         "fqFactor":'''
             create table `t_daily_fqFactor` (
-                `stock_code` varchar(16) NOT NULL COMMENT 'stock code',
+                `code` varchar(16) NOT NULL COMMENT 'stock code',
                 `date` date NOT NULL COMMENT 'date',
                 `factor` float(32) NOT NULL COMMENT 'for calculating fq price',
-                UNIQUE KEY `idx_code_date` (`stock_code`, `date`)
+                UNIQUE KEY `idx_code_date` (`code`, `date`)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ''',
         "dailyHfqStock":'''
             create table `t_daily_hfq_stock` (
-               `stock_code` varchar(16) NOT NULL COMMENT 'stock code',
+               `code` varchar(16) NOT NULL COMMENT 'stock code',
                `deal_date` date NOT NULL COMMENT 'date',
                `open_price` float(10,4) NOT NULL COMMENT 'open price, hfq',
                `high_price` float(10,4) NOT NULL COMMENT 'highest price of the day, hfq',
@@ -38,11 +38,11 @@ tableSqlDict = {
                `low_price` float(10,4) NOT NULL COMMENT 'lowest price of the day, hfq',
                `volume` bigint(20) NOT NULL COMMENT 'volume',
                `amount` bigint(20) NOT NULL COMMENT 'deal amount of money',
-               UNIQUE KEY `idx_code_date` (`stock_code`, `deal_date`)
+               UNIQUE KEY `idx_code_date` (`code`, `deal_date`)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8;''',
         "dailyQfqStock":'''
             create table `t_daily_qfq_stock` (
-                `stock_code` varchar(16) NOT NULL COMMENT 'stock code',
+                `code` varchar(16) NOT NULL COMMENT 'stock code',
                 `deal_date` date NOT NULL COMMENT 'date',
                 `open_price` float(10,4) NOT NULL COMMENT 'open price, qfq',
                 `high_price` float(10,4) NOT NULL COMMENT 'highest price of the day, qfq',
@@ -50,29 +50,29 @@ tableSqlDict = {
                 `low_price` float(10,4) NOT NULL COMMENT 'lowest price of the day, qfq',
                 `volume` bigint(20) NOT NULL COMMENT 'volume',
                 `amount` bigint(20) NOT NULL COMMENT 'deal amount of money',
-                UNIQUE KEY `idx_code_date` (`stock_code`, `deal_date`)
+                UNIQUE KEY `idx_code_date` (`code`, `deal_date`)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ''',
         "stockBasic":'''
             create table `t_stock_basics` (
+                `code` varchar(16) NOT NULL COMMENT 'stock code',
                 `update_date` date NOT NULL COMMENT 'update date',
-                `stock_code` varchar(16) NOT NULL COMMENT 'stock code',
                 `name` varchar(32) NOT NULL COMMENT 'cn name',
                 `industry` varchar(32) NOT NULL COMMENT '',
                 `area` varchar(32) NOT NULL COMMENT '',
                 `pe` float(10,4) NOT NULL COMMENT '',
-                `outstanding` float(10, 4) NOT NULL COMMENT '',
-                `totals` float(10,4) NOT NULL COMMENT '',
-                `totalAssets` float(20,4) NOT NULL COMMENT '',
-                `liquidAssets` float(20,4) NOT NULL COMMENT '',
-                `fixedAssets` float(20,4) NOT NULL COMMENT '',
-                `reserved` float(20,4) NOT NULL COMMENT '',
+                `outstanding` float(32, 8) NOT NULL COMMENT '',
+                `totals` float(32,8) NOT NULL COMMENT '',
+                `totalAssets` float(32,8) NOT NULL COMMENT '',
+                `liquidAssets` float(32,8) NOT NULL COMMENT '',
+                `fixedAssets` float(32,8) NOT NULL COMMENT '',
+                `reserved` float(32,8) NOT NULL COMMENT '',
                 `reservedPerShare` float(20,4) NOT NULL COMMENT '',
                 `esp` float(10,4) NOT NULL COMMENT '',
                 `bvps` float(10,4) NOT NULL COMMENT '',
                 `pb` float(10,4) NOT NULL COMMENT '',
                 `timeToMarket` int(10) NOT NULL COMMENT '',
-                UNIQUE KEY `idx_code_date` (`stock_code`, `update_date`)
+                UNIQUE KEY `idx_code_date` (`code`, `update_date`)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ''',
         "sandboxStatus":'''
@@ -105,6 +105,7 @@ tableSqlDict = {
 def _createTbl(tableName):
     assert tableName in tableSqlDict
     utils.executeSQL(tableSqlDict[tableName])
+    print "table [%s] createed."%tableName
 
 
 if '__main__' == __name__:
@@ -139,6 +140,6 @@ tbl_downloadTaskStatus : create the table of name "downloadTaskStatus", which re
             _createTbl("fqFactor")
         if args.create.lower() in ("tbl_downloadtaskstatus", "all"):
             _createTbl("downloadTaskStatus")
-        if args.create.lower() in ("tbl_stockBasic", "all"):
+        if args.create.lower() in ("tbl_stockbasic", "all"):
             _createTbl("stockBasic")
 
