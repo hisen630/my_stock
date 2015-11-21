@@ -5,6 +5,8 @@ import os
 
 import time
 
+DEBUG = True
+
 ISO_TIME_FORMAT='%Y-%m-%d %X'
 ISO_DATE_FORMAT='%Y-%m-%d'
 

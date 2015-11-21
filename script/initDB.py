@@ -31,14 +31,14 @@ tableSqlDict = {
         "dailyHfqStock":'''
             create table `t_daily_hfq_stock` (
                `code` varchar(16) NOT NULL COMMENT 'stock code',
-               `deal_date` date NOT NULL COMMENT 'date',
-               `open_price` float(10,4) NOT NULL COMMENT 'open price, hfq',
-               `high_price` float(10,4) NOT NULL COMMENT 'highest price of the day, hfq',
-               `close_price` float(10,4) NOT NULL COMMENT 'close price, hfq',
-               `low_price` float(10,4) NOT NULL COMMENT 'lowest price of the day, hfq',
+               `date` date NOT NULL COMMENT 'date',
+               `open` float(10,4) NOT NULL COMMENT 'open price, hfq',
+               `high` float(10,4) NOT NULL COMMENT 'highest price of the day, hfq',
+               `close` float(10,4) NOT NULL COMMENT 'close price, hfq',
+               `low` float(10,4) NOT NULL COMMENT 'lowest price of the day, hfq',
                `volume` bigint(20) NOT NULL COMMENT 'volume',
                `amount` bigint(20) NOT NULL COMMENT 'deal amount of money',
-               UNIQUE KEY `idx_code_date` (`code`, `deal_date`)
+               UNIQUE KEY `idx_code_date` (`code`, `date`)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8;''',
         "dailyQfqStock":'''
             create table `t_daily_qfq_stock` (
@@ -56,7 +56,6 @@ tableSqlDict = {
         "stockBasic":'''
             create table `t_stock_basics` (
                 `code` varchar(16) NOT NULL COMMENT 'stock code',
-                `update_date` date NOT NULL COMMENT 'update date',
                 `name` varchar(32) NOT NULL COMMENT 'cn name',
                 `industry` varchar(32) NOT NULL COMMENT '',
                 `area` varchar(32) NOT NULL COMMENT '',
@@ -72,7 +71,7 @@ tableSqlDict = {
                 `bvps` float(10,4) NOT NULL COMMENT '',
                 `pb` float(10,4) NOT NULL COMMENT '',
                 `timeToMarket` int(10) NOT NULL COMMENT '',
-                UNIQUE KEY `idx_code_date` (`code`, `update_date`)
+                PRIMARY KEY(`code`)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ''',
         "sandboxStatus":'''

@@ -13,6 +13,15 @@ import mylog
 import MySQLdb
 
 import tushare as ts
+from sqlalchemy import create_engine
+
+def getEngine(typeStr='mysql'):
+    return create_engine('mysql://%s:%s@%s/%s?charset=%s'%(
+        conf.mysqlConfig['user'],
+        conf.mysqlConfig['passwd'],
+        conf.mysqlConfig['host'],
+        conf.DB_NAME,
+        conf.mysqlConfig['charset']))
 
 def getConn():
     conf.mysqlConfig["db"] = conf.DB_NAME
@@ -45,16 +54,37 @@ def executemany(sql_template, args):
     cursor.close()
     conn.close()
 
+
 def downloadStockBasics():
     
     stockBasics = ts.get_stock_basics()
-    stockBasics.insert(0,"update_date",time.strftime( conf.ISO_DATE_FORMAT, time.localtime()),True)
-    try:
-        stockBasics.to_sql(name="t_stock_basics", flavor="mysql",con=getConn(),if_exists="append")
-    except Exception,e:
-        # duplicated key, do nothing
-        if e[0]==1062:
-            pass
+    #stockBasics.insert(0,"update_date",time.strftime( conf.ISO_DATE_FORMAT, time.localtime()),True)
+    executeSQL("delete from t_stock_basics")
+    stockBasics.to_sql(name="t_stock_basics",con=getEngine(),if_exists="append")
+    return stockBasics
+
+def splitDateRange(startDate, endDate):
+    """The (startDate, endDate) may span over a very large range,
+        and this is not good for performance consideration if the downloader
+        is based on the tusahre lib which is our primary downloader.
+        And this method is called to split the range 
+        into several smaller(year) range.
+    """
+    _ranges = []
+    years = range(int(startDate.split('-')[0]), int(endDate.split('-')[0])+1)
+    # only one year
+    if len(years) == 1:
+        _ranges.append((startDate, endDate))
+        return _ranges
+    
+    for idx, y in enumerate(years):
+        if idx == 0:
+            _ranges.append((startDate, "%d-12-31"%y)) 
+        elif idx == len(years) - 1:
+            _ranges.append(("%d-01-01"%y, endDate))
+        else:
+            _ranges.append(("%d-01-01"%y, "%d-12-31"%y))
+    return _ranges
 
 
 # test codes
