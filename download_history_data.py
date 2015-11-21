@@ -21,15 +21,14 @@ class HistoryDataDownloader(object):
         self.stockBasics = utils.downloadStockBasics()
         self.startDate = startDate
         self.endDate = endDate
-        self.interval = interval
+        self.interval = interval if not conf.DEBUG else 1
         self.retryTimes = retryTimes
-        self.dateRanges = utils.splitDateRange(startDate, endDate)
 
     def download(self):
         codes = self.stockBasics.index.values
         for code in codes:
             codeDF = DataFrame()
-            for (start, end) in self.dateRanges:
+            for (start, end) in utils.splitDateRange(self.startDate, self.endDate,self.stockBasics.ix[code]['timeToMarket']):
                 descStr = " (%s, %s, %s) "%(code, start, end)
 
                 _intervalFactor = 2
@@ -54,16 +53,17 @@ class HistoryDataDownloader(object):
                 else:
                     logging.info("Downloaded %s with shape: %s"%(descStr, df.shape))
                     codeDF = pd.concat([codeDF, df])
-            logging.info("Saving %s."%descStr)
-            self._save(code, codeDF)
-            logging.info("Saved %s."%descStr)
+
+            self._save(code, codeDF,descStr)
             
             if conf.DEBUG:
                 break
 
-    def _save(self, code, codeDF):
+    def _save(self, code, codeDF,descStr):
         codeDF.insert(0, "code", code, True)
+        logging.info("Saving %s."%descStr)
         codeDF.to_sql(name="t_daily_hfq_stock",con=utils.getEngine(), if_exists="append")
+        logging.info("Saved %s with shape:%s."%(descStr,codeDF.shape))
 
 
 

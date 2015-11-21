@@ -63,7 +63,7 @@ def downloadStockBasics():
     stockBasics.to_sql(name="t_stock_basics",con=getEngine(),if_exists="append")
     return stockBasics
 
-def splitDateRange(startDate, endDate):
+def splitDateRange(startDate, endDate,timeToMarket=None):
     """The (startDate, endDate) may span over a very large range,
         and this is not good for performance consideration if the downloader
         is based on the tusahre lib which is our primary downloader.
@@ -71,6 +71,13 @@ def splitDateRange(startDate, endDate):
         into several smaller(year) range.
     """
     _ranges = []
+
+    if timeToMarket is not None:
+        timeToMarket = str(timeToMarket)
+        timeToMarket = timeToMarket[:4]+"-"+timeToMarket[4:6]+"-"+timeToMarket[6:] 
+        if timeToMarket > startDate:
+            startDate = timeToMarket
+
     years = range(int(startDate.split('-')[0]), int(endDate.split('-')[0])+1)
     # only one year
     if len(years) == 1:
