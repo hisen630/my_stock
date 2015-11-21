@@ -80,5 +80,8 @@ if '__main__' == __name__:
 
     args = parser.parse_args()
 
+    if args.production:
+        conf.DEBUG = False
+
     downloader = HistoryDataDownloader(startDate=args.start, endDate=args.end)
     downloader.download()
