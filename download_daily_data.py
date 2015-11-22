@@ -53,7 +53,7 @@ class DailyDataDownloader(object):
                         _rate = float(_fqDF['factor'])/float(_df['pre_close'])
                     else:
                         _rate = float(_fqDF['factor'])/float(_df['close'])
-                    _df = _df.drop('pre_close')
+                    _df = _df.drop('pre_close',axis=1)
                     for label in ['open', 'high', 'close', 'low']:
                         _df[label] = float(_df[label]) * _rate
                         #_df[label] = _df[label].map(lambda x:'%.2f'%x)
