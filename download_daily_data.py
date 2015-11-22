@@ -26,7 +26,7 @@ def _downloadFqFactor(codes):
     logging.info("Deleting fq factor.")
     utils.executeSQL("delete from t_daily_fqFactor")
     logging.info("Saving fq factor.")
-    factorDF.to_sql(name='t_daily_fqFactor',con=utils.getEngine(), if_exists="append")
+    factorDF.to_sql(name='t_daily_fqFactor',con=utils.getEngine(), if_exists="append",chunksize=20000)
     logging.info("Saved fq factor.")
 
 class DailyDataDownloader(object):
