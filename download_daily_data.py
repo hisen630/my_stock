@@ -46,9 +46,14 @@ class DailyDataDownloader(object):
                     _fqDF = _fqDF.head(1)
 
                     _df = ts.get_realtime_quotes(code)
-                    _df = _df[['code','open','high','price','low','volume','amount','date']].set_index('date')
+                    _df = _df[['code','open','high','pre_close','price','low','volume','amount','date']].set_index('date')
                     _df.rename(columns={'price':'close'},inplace=True)
-                    _rate = float(_fqDF['factor'])/float(_df['close'])
+                    # stock may exit the market
+                    if ((float(_df['high']) == 0) & (float(_df['low'])==0)):
+                        _rate = float(_fqDF['factor'])/float(_df['pre_close'])
+                    else:
+                        _rate = float(_fqDF['factor'])/float(_df['close'])
+                    _df = _df.drop('pre_close')
                     for label in ['open', 'high', 'close', 'low']:
                         _df[label] = float(_df[label]) * _rate
                         #_df[label] = _df[label].map(lambda x:'%.2f'%x)
