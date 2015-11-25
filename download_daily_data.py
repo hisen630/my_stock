@@ -46,6 +46,8 @@ class DailyDataDownloader(object):
                     _fqDF = _fqDF.head(1)
 
                     _df = ts.get_realtime_quotes(code)
+                    if _df is None: # if the code is off the market, this could happen
+                        break
                     _df = _df[['code','open','high','pre_close','price','low','volume','amount','date']].set_index('date')
                     _df.rename(columns={'price':'close'},inplace=True)
                     # stock may exit the market
