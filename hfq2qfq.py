@@ -12,12 +12,15 @@ import conf.conf as conf
 
 
 def _doqfq(code):
-    hfqDF = pd.read_sql('select * from t_daily_hfq_stock where code="%s"'%code, utils.getEngine())
+    logging.info("qfq for %s."%code)
+    hfqDF = pd.read_sql('select * from t_daily_hfq_stock where code="%s"'%code, utils.getEngine()).set_index('date').sort_index(ascending=False)
 
-    factor = pd.read_sql('select * from t_daily_fqFactor where code="%s" and date="%s"'%(code, hfqDF.tail(1)['date'].values[0]), utils.getEngine())['factor'].values[0]
+    factor = pd.read_sql('select * from t_daily_fqFactor where code="%s" and date="%s"'%(code, hfqDF.head(1).index.values[0]), utils.getEngine())['factor'].values[0]
 
 
     rt = ts.get_realtime_quotes(code)
+    if rt is None:
+        return
     if ((float(rt['high']) == 0) & (float(rt['low'])==0)):
         preClose = float(rt['pre_close'])
     else:

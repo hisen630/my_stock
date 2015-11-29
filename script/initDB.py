@@ -43,14 +43,14 @@ tableSqlDict = {
         "dailyQfqStock":'''
             create table `t_daily_qfq_stock` (
                 `code` varchar(16) NOT NULL COMMENT 'stock code',
-                `deal_date` date NOT NULL COMMENT 'date',
-                `open_price` float(10,4) NOT NULL COMMENT 'open price, qfq',
-                `high_price` float(10,4) NOT NULL COMMENT 'highest price of the day, qfq',
-                `close_price` float(10,4) NOT NULL COMMENT 'close price, qfq',
-                `low_price` float(10,4) NOT NULL COMMENT 'lowest price of the day, qfq',
+                `date` date NOT NULL COMMENT 'date',
+                `open` float(10,4) NOT NULL COMMENT 'open price, qfq',
+                `high` float(10,4) NOT NULL COMMENT 'highest price of the day, qfq',
+                `close` float(10,4) NOT NULL COMMENT 'close price, qfq',
+                `low` float(10,4) NOT NULL COMMENT 'lowest price of the day, qfq',
                 `volume` bigint(20) NOT NULL COMMENT 'volume',
                 `amount` bigint(20) NOT NULL COMMENT 'deal amount of money',
-                UNIQUE KEY `idx_code_date` (`code`, `deal_date`)
+                UNIQUE KEY `idx_code_date` (`code`, `date`)
             )ENGINE=InnoDB DEFAULT CHARSET=utf8;
         ''',
         "stockBasic":'''
@@ -111,7 +111,7 @@ if '__main__' == __name__:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--create", type=str, 
-            choices=["db_stock", "tbl_dailyHfqStock", "tbl_dailyQfqStock", "tbl_stockBasic","tbl_downloadTaskStatus", "tbl_sandboxStatus", "all"],
+            choices=["db_stock", "tbl_dailyHfqStock", "tbl_dailyQfqStock", "tbl_stockBasic","tbl_downloadTaskStatus", "tbl_sandboxStatus", "tbl_fqFactor","all"],
             help='''
 Create the database or table. Case insensitive.
 all : create all the needed database and tables.
@@ -120,6 +120,7 @@ tbl_dailyHfqStock : create the table of name "dailyHfqStock", which records the 
 tbl_dailyQfqStock : create the table of name "dailyQfqStock", which records the daily stock info, with qfq prices.
 tbl_stockBasic : create the table of name "stockBasic", which records the stock basic info.
 tbl_downloadTaskStatus : create the table of name "downloadTaskStatus", which records the download task's status, to provide the breakpoint.
+tbl_fqFactor : factor
             ''', required=True)
     parser.add_argument("-f", "--force", action="store_true",
             help="if this option is set, will do init even if the db/table exists, which leads to data deleted.")
@@ -135,7 +136,7 @@ tbl_downloadTaskStatus : create the table of name "downloadTaskStatus", which re
             _createTbl("dailyHfqStock")
         if args.create.lower() in ("tbl_dailyqfqstock", "all"):
             _createTbl("dailyQfqStock")
-        if args.create.lower() in ("tbl_fqFactor", "all"):
+        if args.create.lower() in ("tbl_fqfactor", "all"):
             _createTbl("fqFactor")
         if args.create.lower() in ("tbl_downloadtaskstatus", "all"):
             _createTbl("downloadTaskStatus")
