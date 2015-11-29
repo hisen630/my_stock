@@ -50,9 +50,10 @@ class DailyDataDownloader(object):
                         break
                     _df = _df[['code','open','high','pre_close','price','low','volume','amount','date']].set_index('date')
                     _df.rename(columns={'price':'close'},inplace=True)
-                    # stock may exit the market
+                    # stock may exit the market or just pause
                     if ((float(_df['high']) == 0) & (float(_df['low'])==0)):
-                        _rate = float(_fqDF['factor'])/float(_df['pre_close'])
+                        break # no need to store
+                        #_rate = float(_fqDF['factor'])/float(_df['pre_close'])
                     else:
                         _rate = float(_fqDF['factor'])/float(_df['close'])
                     _df = _df.drop('pre_close',axis=1)
