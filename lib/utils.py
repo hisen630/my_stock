@@ -37,6 +37,9 @@ def getConn():
     return conn
 
 def executeSQL(sql):
+    '''
+    this wrapper sucks. cannot get any data out, just execute a sql.
+    '''
     conn = getConn()
     cursor = conn.cursor()
     logging.info("Execute sql: %s"%sql)
@@ -46,6 +49,9 @@ def executeSQL(sql):
     conn.close()
 
 def executemany(sql_template, args):
+    '''
+    this wrapper sucks. cannot get any data out, just execute a sql.
+    '''
     conn = getConn()
     cursor = conn.cursor()
     logging.info("Execute sql: %s to save %d lines of data."%(sql_template, len(args)))
