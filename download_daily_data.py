@@ -29,9 +29,6 @@ class DailyDataDownloader(object):
         codeDF = DataFrame()
 
         for code in codes:
-            if self.breakpoint is not None and code < self.breakpoint:
-                    continue
-
             descStr = " (%s, %s) "%(code, self.date)
 
             _intervalFactor = 2
