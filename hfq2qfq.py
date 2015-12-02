@@ -14,6 +14,8 @@ import conf.conf as conf
 def _doqfq(code):
     logging.info("qfq for %s."%code)
     hfqDF = pd.read_sql('select * from t_daily_hfq_stock where code="%s"'%code, utils.getEngine()).set_index('date').sort_index(ascending=False)
+    if hfqDF is None or hfqDF.empty:
+        return
 
     factors = pd.read_sql('select * from t_daily_fqFactor where code="%s" and date="%s"'%(code, hfqDF.head(1).index.values[0]), utils.getEngine())
     # off market
