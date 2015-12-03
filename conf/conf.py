@@ -17,8 +17,9 @@ sandbox_key="mls_pc_virtual-hhy-001"
 saveMode = "mysql"
 
 DB_NAME = "stock"
-DAILY_STOCK_TABLE = "dailyStock"
-STOCK_BASIC_TABLE = "stockBasic"
+STOCK_BASIC_TABLE = "t_stock_basics"
+
+STOCK_NUMBER_LOW_BOUND = 1000
 
 ############## mysql configuration ###############
 mysqlConfig = {
