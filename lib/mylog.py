@@ -3,11 +3,15 @@
 
 
 import logging
+import logging.config
+
 import sys
-sys.path.append("..")
+sys.path.append('..')
+
 import conf.conf as conf
 
-logging.basicConfig(filename='%s/run.log'%conf.LOG_HOME, 
-        format="[%(levelname)s]\t[%(asctime)s]\t%(message)s",
-        level=logging.DEBUG)
-logging.info("Logging configured.")
+logging.config.fileConfig('logging.conf')
+if conf.DEBUG:
+    logger = logging.getLogger('dev')
+else:
+    logger = logging.getLogger('product')
