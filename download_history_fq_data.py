@@ -54,4 +54,5 @@ if '__main__' == __name__:
     if conf.DEV:
         stockBasics = stockBasics[:10]
     _downloadFqFactor(stockBasics.index)
+    conf.logger.info("Download fq data successfully.")
 

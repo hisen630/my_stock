@@ -3,7 +3,7 @@
 
 import time
 
-DEV = False
+DEV = True
 
 ############## mysql configuration ###############
 PRODUCT_mysqlConfig = {
