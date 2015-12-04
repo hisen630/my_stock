@@ -17,8 +17,12 @@ def ts_get_h_data_wrapper(code,start, end, autype='hfq'):
 
 class HistoryDataDownloader(object):
 
-    def __init__(self, startDate, endDate):
-        self.stockBasics = utils.downloadStockBasics()
+    def __init__(self, startDate, endDate, breakpoint=None):
+        self.breakpoint=breakpoint
+        if self.breakpoint is not None:
+            self.stockBasics = utils.getStockBasics()
+        else:
+            self.stockBasics = utils.downloadStockBasics()
         self.startDate = startDate
         self.endDate = endDate
 
@@ -44,6 +48,8 @@ class HistoryDataDownloader(object):
 
     def download(self):
         codes = self.stockBasics.index
+        if self.breakpoint is not None:
+            codes = codes[codes>self.breakpoint]
         if conf.DEV:
             codes = codes[:10]
         codes.map(self._downloadSingle)
@@ -58,6 +64,9 @@ if '__main__' == __name__:
     parser.add_argument("-e", "--end", type=str, help='''
     Till which date(YYYY-MM-DD) to download. If not set, will using current date.
     ''')
+    parser.add_argument("-g", "--greater", type=str, help='''
+    Given a code, will download all the codes greater than the given one.
+    ''')
     parser.add_argument("-p", "--production", action="store_true", help='''defalt is in debug mode, which only plays a little''')
 
     args = parser.parse_args()
@@ -65,5 +74,5 @@ if '__main__' == __name__:
     if args.production:
         conf.DEV = False
 
-    downloader = HistoryDataDownloader(startDate=args.start, endDate=args.end)
+    downloader = HistoryDataDownloader(startDate=args.start, endDate=args.end, breakpoint=args.greater)
     downloader.download()
