@@ -10,20 +10,10 @@ import conf.conf as conf
 
 import tushare as ts
 
-@utils.retry(Exception,logger=conf.logger)
-def _ts_parse_fq_factor(code):
-    try:
-        df = ts.stock.trading._parase_fq_factor(code, '', '')
-    except AttributeError as ex:
-        # if a stock new to market, there's no fq factor
-        # and sina returns a bad formatted of empty data, will cause:
-        #  AttributeError: 'list' object has no attribute 'keys'
-        return None
-    return df
 
 def _downloadSingle(code):
     conf.logger.info("Downloading %s fq factor."%code)
-    df = _ts_parse_fq_factor(code)
+    df = conf.ts_parse_fq_factor_wrap(code)
     if df is None:
         conf.logger.warning("No fq factor for %s."%code)
         return

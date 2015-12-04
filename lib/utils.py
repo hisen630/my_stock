@@ -38,9 +38,30 @@ def retry(MyException, tries=4, delay=3, backoff=2, logger=None):
     return deco_retry
 
 
+@retry(Exception)
 def getStockBasics():
     return pd.read_sql('select * from %s'%conf.STOCK_BASIC_TABLE, con=getEngine(), index_col='code')
 
+
+@retry(Exception,logger=conf.logger)
+def ts_parse_fq_factor_wrap(code):
+    try:
+        df = ts.stock.trading._parase_fq_factor(code, '', '')
+    except AttributeError as ex:
+        # if a stock new to market, there's no fq factor
+        # and sina returns a bad formatted of empty data, will cause:
+        #  AttributeError: 'list' object has no attribute 'keys'
+        return None
+    return df
+
+
+@retry(Exception)
+def ts_get_h_data_wrap(code,start, end, autype='hfq'):
+    return ts.get_h_data(code, autype=autype, start=start, end=end, retry_count=5, pause=0.01)
+
+@retry(Exception)
+def ts_get_realtime_quotes_wrap(code):
+    return ts.get_realtime_quotes_wrap(code)
 
 @retry(Exception)
 def downloadStockBasics():

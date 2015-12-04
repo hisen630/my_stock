@@ -11,9 +11,6 @@ import tushare as ts
 import lib.utils as utils
 import conf.conf as conf
 
-@utils.retry(Exception)
-def ts_get_h_data_wrapper(code,start, end, autype='hfq'):
-    return ts.get_h_data(code, autype=autype, start=start, end=end, retry_count=5, pause=0.01)
 
 class HistoryDataDownloader(object):
 
@@ -32,7 +29,7 @@ class HistoryDataDownloader(object):
             descStr = " (%s, %s, %s) "%(code, start, end)
             conf.logger.info("Downloading %s"%descStr)
 
-            df = ts_get_h_data_wrapper(code, start, end)
+            df = utils.ts_get_h_data_wrap(code, start, end)
 
             if df is None or df.shape[0] == 0:
                 conf.logger.warning("No data for %s"%descStr)

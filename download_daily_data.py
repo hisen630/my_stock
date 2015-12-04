@@ -1,106 +1,73 @@
 #!/usr/bin/env python2.7
 #coding=utf-8
 
-import logging
 import sys
 import time
 import argparse
+
+from dateutil.parser import parse as dateparse
 
 import pandas as pd
 from pandas import DataFrame,Series
 
 import tushare as ts
 
-import lib.mylog
 import lib.utils as utils
 import conf.conf as conf
 
 class DailyDataDownloader(object):
 
-    def __init__(self,date, interval=10, retryTimes=5):
-        self.date = date
-        self.interval = interval if not conf.DEBUG else 1
-        self.retryTimes = retryTimes
+    def __init__(self):
+        self.today = dateparse(time.asctime()).date()
         self.stockBasics = utils.downloadStockBasics()
 
-    def download(self):
-        codes = self.stockBasics.index.values
-        fqFactorDF = DataFrame()
-        codeDF = DataFrame()
+    def _downloadSingle(self, code):
+        descStr = " (%s, %s) "%(code, str(self.today))
+        conf.logger.info("Downloading daily %s."%descStr)
 
-        for code in codes:
-            descStr = " (%s, %s) "%(code, self.date)
+        df = self._ts_get_realtime_quotes_wrap(code)
 
-            _intervalFactor = 2
-            _interval = self.interval
-            _retryCount = 0
-            while _retryCount < self.retryTimes:
-                _retryCount += 1
-                logging.info("Downloading daily %s trying %d times."%(descStr, _retryCount))
-                _interval *= _intervalFactor
-                try:
-                    # a brand new code into market may cause '_parase_fq_factor' raise exceptions
-                    _df = ts.get_realtime_quotes(code)
-                    if _df is None: # if the code is off the market, this could happen
-                        break
-                    _df = _df[['code','open','high','pre_close','price','low','volume','amount','date']].set_index('date')
-                    _df.rename(columns={'price':'close'},inplace=True)
+        if df is None or df.empty:
+            conf.logger.warning("No daily data for %s."%descStr)
+            return
+        conf.logger.info("Downloaded daily data for %s with shape %s."%(descStr, df.shape))
 
-                    # a brand new code into market, could also like this, the get_realtime_quotes may return something
-                    if ((float(_df['high']) == 0) & (float(_df['low'])==0)):
-                        break # no need to store
-                    
+        df = df[['code','open','high','pre_close','price','low','volume','amount','date']].set_index('date')
+        df.rename(columns={'price':'close'}, inplace=True)
 
-                    _fqDF = ts.stock.trading._parase_fq_factor(code,'','')
-                    _fqDF.insert(0,"code",code,True)
-                    _fqDF = _fqDF.drop_duplicates('date').set_index('date').sort_index(ascending=False)
-                    #_fqDF = _fqDF.ix[self.date]
-                    _fqDF = _fqDF.head(1)
+        # a brand new code into market, could also like this, the get_realtime_quotes may return something
+        if ((float(df['high']) == 0) & (float(df['low'])==0)):
+            conf.logger.warning("high&low are both 0 for %s."%descStr)
+            return 
 
-                    # stock may exit the market or just pause
-                    if ((float(_df['high']) == 0) & (float(_df['low'])==0)):
-                        break # no need to store
-                        #_rate = float(_fqDF['factor'])/float(_df['pre_close'])
-                    else:
-                        _rate = float(_fqDF['factor'])/float(_df['close'])
+        fqdf = utils.ts_parse_fq_factor_wrap(code)
+        fqdf.insert(0,'code',code,True)
+        fqdf.drop_duplicates('date').set_index('date').sort_index(ascending=False)
+        fqdf = fqdf.head(1)
 
-                    _df = _df.drop('pre_close',axis=1)
-                    for label in ['open', 'high', 'close', 'low']:
-                        _df[label] = float(_df[label]) * _rate
-                        #_df[label] = _df[label].map(lambda x:'%.2f'%x)
-                        _df[label] = _df[label].astype(float)
-                except Exception, e:
-                    if _retryCount + 1 == self.retryTimes or conf.DEBUG:
-                        raise e
-                    logging.info("Download error, waiting for %d secs."%_interval)
-                    time.sleep(_interval)
-                    continue
-                fqFactorDF = pd.concat([fqFactorDF,_fqDF])
-                codeDF = pd.concat([codeDF, _df])
-                break
+        _rate = float(fqdf['factor']) / float(df['close'])
 
-            if conf.DEBUG:
-                break
+        fqdf = fqdf.drop('pre_close', axis=1)
+        for label in ['open', 'high', 'close', 'low']:
+            df[label] = float(df[label]) * _rate
+            #df[label] = df[label].map(lambda x:'%.2f'%x)
+            df[label] = df[label].astype(float)
 
-        self._save(fqFactorDF, codeDF)
+        conf.logger.info("Saving daily fq factor for %s."%descStr)
+        fqdf.to_sql(name=conf.STOCK_FQ_FACTOR, con=utils.getEngine(), if_exists='append', chunksize=20000)
+        conf.logger.info("Saved daily fq factor for %s."%descStr)
 
-    def _save(self, fqFactorDF, codeDF):
-        logging.info("Saving daily fq factor.")
-        fqFactorDF.to_sql(name='t_daily_fqFactor', con=utils.getEngine(), if_exists='append', chunksize=20000)
-        logging.info("Saved daily fq factor.")
-        logging.info("Saving daily hfq data.")
-        codeDF.to_sql(name='t_daily_hfq_stock', con=utils.getEngine(), if_exists='append')
-        logging.info("Saved daily hfq data.")
+        conf.logger.info("Saving daily hfq data for %s."%descStr)
+        df.to_sql(name=conf.STOCK_HFQ_TABLE, conf=utils.getEngine(), if_exists='append', chunksize=20000)
+        conf.logger.info("Saving daily hfq data for %s."%descStr)
 
+    
 if '__main__' == __name__:
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--production", action="store_true", help='''defalt is in debug mode, which only plays a little''')
     args = parser.parse_args()
 
-    if args.production:
-        conf.DEBUG = False
-
-    downloader = DailyDataDownloader('')
+    downloader = DailyDataDownloader()
     downloader.download()
+    conf.logging.info("Download daily data successfully.")
 
