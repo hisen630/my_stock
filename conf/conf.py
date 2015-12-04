@@ -20,6 +20,7 @@ mysqlConfig = PRODUCT_mysqlConfig if not DEV else DEV_mysqlConfig
 DB_NAME = "stock" if not DEV else "dev_stock"
 STOCK_BASIC_TABLE = "t_stock_basics"
 STOCK_HFQ_TABLE = "t_daily_hfq_stock"
+STOCK_FQ_FACTOR = "t_daily_fqFactor"
 
 
 STOCK_NUMBER_LOW_BOUND = 1000

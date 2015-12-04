@@ -1,43 +1,34 @@
 #!/usr/bin/env python2.7
 #coding=utf-8
 
-import logging
 import argparse
 import pandas as pd
 from pandas import DataFrame
 
 from lib import utils
-import lib.mylog
 import conf.conf as conf
 
 import tushare as ts
 
+@utils.retry(Exception)
+def _ts_parse_fq_factor(code):
+    return ts.stock.trading._parase_fq_factor(code, '', '')
+
+def _downloadSingle(code):
+    conf.logger.info("Downloading %s fq factor."%code)
+    df = _ts_parse_fq_factor(code)
+    df = df.drop_duplicates('date').set_index('date')
+    df.insert(0,"code",code,True)
+    conf.logger.info("Downloaded %s fq factor."%code)
+
+    conf.logger.info("Saveing %s fq factor."%code)
+    df.to_sql(name=conf.STOCK_FQ_FACTOR, con=utils.getEngine(), if_exists="append", chunksize=20000)
+    conf.logger.info("Saved %s fq factor."%code)
+
 def _downloadFqFactor(codes):
-    factorDF = DataFrame()
-    for code in codes:
-        logging.info("Downloading %s fq factor."%code)
-        df = ts.stock.trading._parase_fq_factor(code,'','')
-        df.insert(0,"code",code,True)
-        df = df.drop_duplicates('date').set_index('date')
-        factorDF = pd.concat([factorDF, df])
-        if conf.DEBUG:
-            break
-
-    logging.info("Deleting fq factor.")
-    utils.executeSQL("delete from t_daily_fqFactor")
-    logging.info("Saving fq factor.")
-    factorDF.to_sql(name='t_daily_fqFactor',con=utils.getEngine(), if_exists="append",chunksize=20000)
-    logging.info("Saved fq factor.")
-
-class HistoryFqFactorDownloader(object):
-
-    def __init__(self, interval=10, retryTimes=5):
-        self.interval = interval if not conf.DEBUG else 1
-        self.retryTimes = retryTimes
-        self.stockBasics = utils.downloadStockBasics()
-
-    def download(self):
-        _downloadFqFactor(self.stockBasics.index.values)
+    if conf.DEV:
+        codes = codes[:10]
+    codes.map(_downloadSingle)
 
 if '__main__' == __name__:
     parser = argparse.ArgumentParser()
@@ -46,7 +37,8 @@ if '__main__' == __name__:
     args = parser.parse_args()
 
     if args.production:
-        conf.DEBUG = False
+        conf.DEV = False
 
-    downloader = HistoryFqFactorDownloader()
-    downloader.download()
+    stockBasics = utils.getStockBasics()
+    _downloadFqFactor(stockBasics.index)
+
