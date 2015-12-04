@@ -13,7 +13,7 @@ import tushare as ts
 
 def _downloadSingle(code):
     conf.logger.info("Downloading %s fq factor."%code)
-    df = conf.ts_parse_fq_factor_wrap(code)
+    df = utils.ts_parse_fq_factor_wrap(code)
     if df is None:
         conf.logger.warning("No fq factor for %s."%code)
         return

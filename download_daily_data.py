@@ -20,6 +20,8 @@ class DailyDataDownloader(object):
     def __init__(self):
         self.today = dateparse(time.asctime()).date()
         self.stockBasics = utils.downloadStockBasics()
+        if conf.DEV:
+            self.stockBasics = self.stockBasics[:10]
 
     def _downloadSingle(self, code):
         descStr = " (%s, %s) "%(code, str(self.today))

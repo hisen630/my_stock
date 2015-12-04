@@ -38,7 +38,7 @@ def retry(MyException, tries=4, delay=3, backoff=2, logger=None):
     return deco_retry
 
 
-@retry(Exception)
+@retry(Exception,logger=conf.logger)
 def getStockBasics():
     return pd.read_sql('select * from %s'%conf.STOCK_BASIC_TABLE, con=getEngine(), index_col='code')
 
@@ -55,15 +55,15 @@ def ts_parse_fq_factor_wrap(code):
     return df
 
 
-@retry(Exception)
+@retry(Exception,logger=conf.logger)
 def ts_get_h_data_wrap(code,start, end, autype='hfq'):
     return ts.get_h_data(code, autype=autype, start=start, end=end, retry_count=5, pause=0.01)
 
-@retry(Exception)
+@retry(Exception,logger=conf.logger)
 def ts_get_realtime_quotes_wrap(code):
     return ts.get_realtime_quotes_wrap(code)
 
-@retry(Exception)
+@retry(Exception,logger=conf.logger)
 def downloadStockBasics():
 
     stockBasics = ts.get_stock_basics()
