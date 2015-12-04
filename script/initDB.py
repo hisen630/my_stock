@@ -9,7 +9,8 @@ import argparse
 import logging
 
 import sys
-sys.path.append("..")
+import os
+sys.path.append(os.getcwd()) # should call from the STOCK_HOME_PATH
 
 import conf.conf as conf
 import lib.utils as utils
@@ -17,7 +18,7 @@ import lib.utils as utils
 def _createDB():
     sql = "CREATE DATABASE IF NOT EXISTS %s DEFAULT CHARSET utf8 COLLATE utf8_general_ci;"%conf.DB_NAME
     utils.executeSQL(sql)
-    logging.info("Created database %s."%conf.DB_NAME)
+    conf.logger.info("Created database %s."%conf.DB_NAME)
 
 tableSqlDict = {
         "fqFactor":'''
@@ -104,7 +105,7 @@ tableSqlDict = {
 def _createTbl(tableName):
     assert tableName in tableSqlDict
     utils.executeSQL(tableSqlDict[tableName])
-    print "table [%s] createed."%tableName
+    conf.logger.info("table [%s] createed."%tableName)
 
 
 if '__main__' == __name__:

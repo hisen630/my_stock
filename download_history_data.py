@@ -1,9 +1,6 @@
 #!/usr/bin/env python2.7
 #coding=utf-8
 
-import logging
-import sys
-import time
 import argparse
 
 import pandas as pd
@@ -11,60 +8,45 @@ from pandas import DataFrame,Series
 
 import tushare as ts
 
-import lib.mylog
 import lib.utils as utils
 import conf.conf as conf
 
+@utils.retry(Exception)
+def ts_get_h_data_wrapper(code,start, end, autype='hfq'):
+    return ts.get_h_data(code, autype=autype, start=start, end=end, retry_count=5, pause=0.01)
+
 class HistoryDataDownloader(object):
 
-    def __init__(self, startDate, endDate, interval=10, retryTimes=5):
+    def __init__(self, startDate, endDate):
         self.stockBasics = utils.downloadStockBasics()
         self.startDate = startDate
         self.endDate = endDate
-        self.interval = interval if not conf.DEBUG else 1
-        self.retryTimes = retryTimes
+
+    def _downloadSingle(self, code):
+        codeDF = DataFrame()
+        for (start, end) in utils.getPeriodByYears(self.startDate, self.endDate, self.stockBasics.ix[code]['timeToMarket']):
+            descStr = " (%s, %s, %s) "%(code, start, end)
+            conf.logger.info("Downloading %s"%descStr)
+
+            df = ts_get_h_data_wrapper(code, start, end)
+
+            if df is None or df.shape[0] == 0:
+                conf.logger.warning("No data for %s"%descStr)
+                return
+            conf.logger.info("Downloaded %s with shape %s."%(descStr, df.shape))
+            codeDF = pd.concat([codeDF, df])
+
+        codeDF.insert(0, "code", code, True)
+        conf.logger.info("Saving %s with shape %s."%(descStr, codeDF.shape))
+        codeDF.to_sql(name=conf.STOCK_HFQ_TABLE, con=utils.getEngine(), if_exists="append")
+        conf.logger.info("Saved %s with shape %s."%(descStr, codeDF.shape))
+            
 
     def download(self):
-        codes = self.stockBasics.index.values
-        for code in codes:
-            codeDF = DataFrame()
-            for (start, end) in utils.splitDateRange(self.startDate, self.endDate,self.stockBasics.ix[code]['timeToMarket']):
-                descStr = " (%s, %s, %s) "%(code, start, end)
-
-                _intervalFactor = 2
-                _interval = self.interval
-                _retryCount = 0
-                while _retryCount < self.retryTimes:
-                    _retryCount += 1
-                    logging.info("Downloading %s trying %d times."%(descStr, _retryCount))
-                    _interval *= _intervalFactor
-                    try:
-                        df = ts.get_h_data(code,autype='hfq', start=start, end=end, retry_count=5, pause=0.01)
-                    except Exception, e:
-                        if _retryCount + 1 == self.retryTimes:
-                            raise e
-                        logging.info("Download error, waiting for %d secs."%_interval)
-                        time.sleep(_interval)
-                        continue
-                    break
-
-                if df is None:
-                    logging.info("No data for %s."%descStr)
-                else:
-                    logging.info("Downloaded %s with shape: %s"%(descStr, df.shape))
-                    codeDF = pd.concat([codeDF, df])
-
-            self._save(code, codeDF,descStr)
-            
-            if conf.DEBUG:
-                break
-
-    def _save(self, code, codeDF,descStr):
-        codeDF.insert(0, "code", code, True)
-        logging.info("Saving %s."%descStr)
-        codeDF.to_sql(name="t_daily_hfq_stock",con=utils.getEngine(), if_exists="append")
-        logging.info("Saved %s with shape:%s."%(descStr,codeDF.shape))
-
+        codes = self.stockBasics.index
+        if conf.DEV:
+            codes = codes[:10]
+        codes.map(self._downloadSingle)
 
 
 if '__main__' == __name__:
@@ -81,7 +63,7 @@ if '__main__' == __name__:
     args = parser.parse_args()
 
     if args.production:
-        conf.DEBUG = False
+        conf.DEV = False
 
     downloader = HistoryDataDownloader(startDate=args.start, endDate=args.end)
     downloader.download()

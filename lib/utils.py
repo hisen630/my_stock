@@ -105,7 +105,7 @@ def executeSQL(sql):
     '''
     conn = getConn()
     cursor = conn.cursor()
-    logging.info("Execute sql: %s"%sql)
+    conf.logger.info("Execute sql: %s"%sql)
     cursor.execute(sql)
     conn.commit()
     cursor.close()
