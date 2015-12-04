@@ -36,9 +36,6 @@ if '__main__' == __name__:
 
     args = parser.parse_args()
 
-    if args.production:
-        conf.DEV = False
-
     stockBasics = utils.getStockBasics()
     _downloadFqFactor(stockBasics.index)
 

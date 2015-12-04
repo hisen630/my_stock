@@ -67,12 +67,8 @@ if '__main__' == __name__:
     parser.add_argument("-g", "--greater", type=str, help='''
     Given a code, will download all the codes greater than the given one.
     ''')
-    parser.add_argument("-p", "--production", action="store_true", help='''defalt is in debug mode, which only plays a little''')
 
     args = parser.parse_args()
-
-    if args.production:
-        conf.DEV = False
 
     downloader = HistoryDataDownloader(startDate=args.start, endDate=args.end, breakpoint=args.greater)
     downloader.download()

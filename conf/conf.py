@@ -21,11 +21,12 @@ DB_NAME = "stock" if not DEV else "dev_stock"
 STOCK_BASIC_TABLE = "t_stock_basics"
 STOCK_HFQ_TABLE = "t_daily_hfq_stock"
 STOCK_FQ_FACTOR = "t_daily_fqFactor"
+STOCK_QFQ_TABLE = "t_daily_qfq_stock"
 
 
 STOCK_NUMBER_LOW_BOUND = 1000
 
-STOCK_HOME_PATH = '/home/work/deploy/my_stock' if DEV else '/home/work/dev/my_stock'
+STOCK_HOME_PATH = '/home/work/deploy/my_stock' if DEV else '/home/work/deploy/my_stock'
 LOGGING_CONF_FILENAME = STOCK_HOME_PATH + '/conf/logging.conf'
 
 
