@@ -1,19 +1,29 @@
+#!/usr/bin/env python2.7
+#coding=utf-8
 
 import os
 import sys
 from tushare.util import dateu as du
 
+import conf.conf as conf
+from download_daily_data import DailyDataDownloader
+from hfq2qfq import _hfq2qfq
+
 if "__main__" == __name__:
 
 
     if du.is_holiday(du.today()):
-        pass
-    else:
-        ret = os.system('/home/work/anaconda/bin/python ./download_daily_data.py -p >>logs/daily.log 2>>logs/daily.err')
-        if ret != 0:
-            print >> sys.stderr, 'daily error with exit code %d'%ret
-        else:
-            ret = os.system('/home/work/anaconda/bin/python ./hfq2qfq.py -p >>logs/fq.log 2>>logs/fq.err')
-            if ret != 0:
-                print >> sys.stderr, 'fq error with exit code %d'%ret
+        conf.logger.info("Today is holiday!") 
+        sys.exit(0)
 
+    
+    dd = DailyDataDownloader()
+    conf.logger.info("Start to download hfq data."
+    dd.download()
+    conf.logging.info("hfq data downloaded.")
+
+    conf.logger.info("Start to calculate qfq data.")
+    _hfq2qfq()
+    conf.logger.info("qfq data calculation completed.")
+
+    conf.logger.info("Daily data downloaded successfully.")
