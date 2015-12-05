@@ -11,7 +11,7 @@ import conf.conf as conf
 
 
 def _doqfq(code):
-    logging.info("qfq for %s."%code)
+    conf.logger.info("qfq for %s."%code)
     hfqDF = pd.read_sql('select * from t_daily_hfq_stock where code="%s"'%code, utils.getEngine()).set_index('date').sort_index(ascending=False)
     if hfqDF is None or hfqDF.empty:
         return
@@ -38,7 +38,7 @@ def _doqfq(code):
         hfqDF[label] = hfqDF[label].map(lambda x:'%.2f'%x)
         hfqDF[label] = hfqDF[label].astype(float)
 
-    if not conf.DEBUG:
+    if not conf.DEV:
         conf.logger.info("Saving %s qfq data."%code)
         hfqDF.to_sql(name=conf.STOCK_QFQ_TABLE, con=utils.getEngine(), if_exists='append')
         conf.logger.info("Saved %s qfq data."%code)
@@ -54,7 +54,7 @@ def _hfq2qfq(beginCode=None):
     if conf.DEV:
         codes = codes[:1]
 
-    if not conf.DEBUG and beginCode is None:
+    if not conf.DEV and beginCode is None:
         utils.executeSQL('delete from t_daily_qfq_stock')
 
     if beginCode is not None:

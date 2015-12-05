@@ -27,7 +27,7 @@ class DailyDataDownloader(object):
         descStr = " (%s, %s) "%(code, str(self.today))
         conf.logger.info("Downloading daily %s."%descStr)
 
-        df = self._ts_get_realtime_quotes_wrap(code)
+        df = utils.ts_get_realtime_quotes_wrap(code)
 
         if df is None or df.empty:
             conf.logger.warning("No daily data for %s."%descStr)
@@ -44,12 +44,12 @@ class DailyDataDownloader(object):
 
         fqdf = utils.ts_parse_fq_factor_wrap(code)
         fqdf.insert(0,'code',code,True)
-        fqdf.drop_duplicates('date').set_index('date').sort_index(ascending=False)
+        fqdf = fqdf.drop_duplicates('date').set_index('date').sort_index(ascending=False)
         fqdf = fqdf.head(1)
 
         _rate = float(fqdf['factor']) / float(df['close'])
 
-        fqdf = fqdf.drop('pre_close', axis=1)
+        df = df.drop('pre_close', axis=1)
         for label in ['open', 'high', 'close', 'low']:
             df[label] = float(df[label]) * _rate
             #df[label] = df[label].map(lambda x:'%.2f'%x)
@@ -60,10 +60,12 @@ class DailyDataDownloader(object):
         conf.logger.info("Saved daily fq factor for %s."%descStr)
 
         conf.logger.info("Saving daily hfq data for %s."%descStr)
-        df.to_sql(name=conf.STOCK_HFQ_TABLE, conf=utils.getEngine(), if_exists='append', chunksize=20000)
+        df.to_sql(name=conf.STOCK_HFQ_TABLE, con=utils.getEngine(), if_exists='append', chunksize=20000)
         conf.logger.info("Saving daily hfq data for %s."%descStr)
 
-    
+    def download(self):
+        self.stockBasics.index.map(self._downloadSingle)
+
 if '__main__' == __name__:
 
     parser = argparse.ArgumentParser()
@@ -71,5 +73,5 @@ if '__main__' == __name__:
 
     downloader = DailyDataDownloader()
     downloader.download()
-    conf.logging.info("Download daily data successfully.")
+    conf.logger.info("Download daily data successfully.")
 

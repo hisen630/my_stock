@@ -61,7 +61,7 @@ def ts_get_h_data_wrap(code,start, end, autype='hfq'):
 
 @retry(Exception,logger=conf.logger)
 def ts_get_realtime_quotes_wrap(code):
-    return ts.get_realtime_quotes_wrap(code)
+    return ts.get_realtime_quotes(code)
 
 @retry(Exception,logger=conf.logger)
 def downloadStockBasics():
