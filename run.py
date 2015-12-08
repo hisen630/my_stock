@@ -12,9 +12,9 @@ from hfq2qfq import _hfq2qfq
 if "__main__" == __name__:
 
 
-    #if du.is_holiday(du.today()):
-    #    conf.logger.info("Today is holiday!") 
-    #    sys.exit(0)
+    if du.is_holiday(du.today()):
+        conf.logger.info("Today is holiday!") 
+        sys.exit(0)
 
     
     dd = DailyDataDownloader()
