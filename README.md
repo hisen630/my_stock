@@ -4,7 +4,8 @@
 1. Python 2.7 (Anaconda release is a better choice)
 2. MySQL 5.5+
 3. MySQL-python package (You could need to install the MySQL driver first)
-4. tushare 0.9+ -- A python package
+4. tushare 0.9+ -- A python package for downloading stock data
+5. dateutil -- A python package for handling date strings
 
 # Installation
 1. Setup your MySQL properly.
@@ -15,8 +16,10 @@
    python initDB.py -c all
    ```
 
-# Download stock data
+# Download history stock data
+# for the first time to download data, and if missed some data, use this to get them back.
 Check this cmd:  
 ```
-python dump_stock.py -h
+python download_history_data.py -h
 ```
+
